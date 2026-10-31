@@ -1,0 +1,116 @@
+
+using UnityEngine;
+
+public class FootballField : MonoBehaviour
+{
+    [Header("Field Dimensions")]
+    public float fieldLength = 105f;
+    public float fieldWidth = 68f;
+    public float lineWidth = 0.15f;
+
+    [Header("Appearance")]
+    public Material grassMaterial;
+    public Material lineMaterial;
+
+    void Start()
+    {
+        CreateGrass();
+        CreateLine("Center Line",
+            new Vector3(0, 0.08f, 0),
+            new Vector3(0, 0.08f, fieldWidth));
+
+        CreateCircle(9.15f, 64);
+        CreateBox(16.5f, 40.3f);
+        CreateBox(5.5f, 18.3f);
+    }
+
+    void CreateGrass()
+    {
+        GameObject grass = GameObject.CreatePrimitive(
+            PrimitiveType.Plane);
+
+        grass.name = "Football Grass";
+        grass.transform.parent = transform;
+        grass.transform.localPosition = Vector3.zero;
+        grass.transform.localScale =
+            new Vector3(fieldLength / 10f, 1f, fieldWidth / 10f);
+
+        if (grassMaterial != null)
+            grass.GetComponent<Renderer>().material = grassMaterial;
+    }
+
+    void CreateLine(string lineName, Vector3 start, Vector3 end)
+    {
+        GameObject line = GameObject.CreatePrimitive(
+            PrimitiveType.Cube);
+
+        line.name = lineName;
+        line.transform.parent = transform;
+        line.transform.position = (start + end) / 2f;
+        line.transform.localScale = new Vector3(
+            lineWidth, 0.04f,
+            Vector3.Distance(start, end));
+
+        line.transform.rotation = Quaternion.LookRotation(end - start);
+
+        ApplyLineMaterial(line);
+    }
+
+    void CreateCircle(float radius, int segments)
+    {
+        GameObject circle = new GameObject("Center Circle");
+        circle.transform.parent = transform;
+
+        LineRenderer lr = circle.AddComponent<LineRenderer>();
+        lr.useWorldSpace = false;
+        lr.loop = true;
+        lr.positionCount = segments;
+        lr.startWidth = lineWidth;
+        lr.endWidth = lineWidth;
+
+        if (lineMaterial != null)
+            lr.material = lineMaterial;
+
+        for (int i = 0; i < segments; i++)
+        {
+            float angle = i * Mathf.PI * 2f / segments;
+            lr.SetPosition(i, new Vector3(
+                Mathf.Cos(angle) * radius,
+                0.1f,
+                Mathf.Sin(angle) * radius));
+        }
+    }
+
+    void CreateBox(float depth, float width)
+    {
+        float halfLength = fieldLength / 2f;
+        float halfWidth = fieldWidth / 2f;
+
+        foreach (float side in new float[] { -1f, 1f })
+        {
+            float z = side * halfWidth;
+
+            CreateLine("Penalty Box Line",
+                new Vector3(-halfLength, 0.08f, z),
+                new Vector3(-halfLength + depth, 0.08f, z));
+
+            CreateLine("Penalty Box Line",
+                new Vector3(halfLength - depth, 0.08f, z),
+                new Vector3(halfLength, 0.08f, z));
+        }
+
+        CreateLine("Penalty Box Front",
+            new Vector3(-halfLength + depth, 0.08f, -width / 2f),
+            new Vector3(-halfLength + depth, 0.08f, width / 2f));
+
+        CreateLine("Penalty Box Front",
+            new Vector3(halfLength - depth, 0.08f, -width / 2f),
+            new Vector3(halfLength - depth, 0.08f, width / 2f));
+    }
+
+    void ApplyLineMaterial(GameObject line)
+    {
+        if (lineMaterial != null)
+            line.GetComponent<Renderer>().material = lineMaterial;
+    }
+}

@@ -1,0 +1,55 @@
+
+using UnityEngine;
+
+public class GoalBuilder : MonoBehaviour
+{
+    public float goalWidth = 7.32f;
+    public float goalHeight = 2.44f;
+    public float goalDepth = 2f;
+    public float postRadius = 0.06f;
+
+    public Material goalMaterial;
+
+    void Start()
+    {
+        CreateGoal(-52.5f, "Goal Home");
+        CreateGoal(52.5f, "Goal Away");
+    }
+
+    void CreateGoal(float xPosition, string goalName)
+    {
+        GameObject goal = new GameObject(goalName);
+        goal.transform.parent = transform;
+
+        float halfWidth = goalWidth / 2f;
+
+        CreatePost(goal.transform,
+            new Vector3(xPosition, goalHeight / 2f, -halfWidth),
+            new Vector3(postRadius * 2f, goalHeight, postRadius * 2f));
+
+        CreatePost(goal.transform,
+            new Vector3(xPosition, goalHeight / 2f, halfWidth),
+            new Vector3(postRadius * 2f, goalHeight, postRadius * 2f));
+
+        CreatePost(goal.transform,
+            new Vector3(xPosition, goalHeight, 0),
+            new Vector3(postRadius * 2f, postRadius * 2f, goalWidth));
+
+        CreatePost(goal.transform,
+            new Vector3(xPosition + goalDepth, goalHeight / 2f, 0),
+            new Vector3(postRadius * 2f, goalHeight, goalWidth));
+    }
+
+    void CreatePost(Transform parent, Vector3 position, Vector3 scale)
+    {
+        GameObject post = GameObject.CreatePrimitive(
+            PrimitiveType.Cube);
+
+        post.transform.parent = parent;
+        post.transform.position = position;
+        post.transform.localScale = scale;
+
+        if (goalMaterial != null)
+            post.GetComponent<Renderer>().material = goalMaterial;
+    }
+}

@@ -1,0 +1,44 @@
+
+using UnityEngine;
+
+public class StadiumLighting : MonoBehaviour
+{
+    [Header("Lighting Settings")]
+    public float lightIntensity = 8f;
+    public float lightRange = 90f;
+    public Color lightColor = Color.white;
+
+    void Start()
+    {
+        CreateFloodlight(
+            new Vector3(-48f, 24f, -35f));
+
+        CreateFloodlight(
+            new Vector3(48f, 24f, -35f));
+
+        CreateFloodlight(
+            new Vector3(-48f, 24f, 35f));
+
+        CreateFloodlight(
+            new Vector3(48f, 24f, 35f));
+    }
+
+    void CreateFloodlight(Vector3 position)
+    {
+        GameObject lamp = new GameObject("Stadium Floodlight");
+        lamp.transform.parent = transform;
+        lamp.transform.position = position;
+
+        Light spotlight = lamp.AddComponent<Light>();
+
+        spotlight.type = LightType.Spot;
+        spotlight.color = lightColor;
+        spotlight.intensity = lightIntensity;
+        spotlight.range = lightRange;
+        spotlight.spotAngle = 100f;
+        spotlight.shadows = LightShadows.None;
+
+        lamp.transform.rotation = Quaternion.Euler(
+            65f, 0f, 0f);
+    }
+}

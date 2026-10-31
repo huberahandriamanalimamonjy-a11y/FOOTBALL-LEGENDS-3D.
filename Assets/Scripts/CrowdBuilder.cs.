@@ -1,0 +1,123 @@
+
+using UnityEngine;
+
+public class CrowdBuilder : MonoBehaviour
+{
+    [Header("Crowd Settings")]
+    public int rows = 5;
+    public int longStandCount = 14;
+    public int endStandCount = 9;
+
+    [Header("Appearance")]
+    public Material[] crowdMaterials;
+
+    private Material[] generatedMaterials;
+
+    void Start()
+    {
+        PrepareMaterials();
+
+        CreateLongStandCrowd(1);
+        CreateLongStandCrowd(-1);
+        CreateEndStandCrowd(1);
+        CreateEndStandCrowd(-1);
+    }
+
+    void PrepareMaterials()
+    {
+        if (crowdMaterials != null && crowdMaterials.Length > 0)
+            return;
+
+        Shader shader = Shader.Find("Standard");
+
+        if (shader == null)
+            return;
+
+        Color[] colors =
+        {
+            Color.red,
+            Color.blue,
+            Color.yellow,
+            Color.white,
+            Color.green
+        };
+
+        generatedMaterials = new Material[colors.Length];
+
+        for (int i = 0; i < colors.Length; i++)
+        {
+            generatedMaterials[i] = new Material(shader);
+            generatedMaterials[i].color = colors[i];
+        }
+    }
+
+    Material GetCrowdMaterial(int index)
+    {
+        if (crowdMaterials != null && crowdMaterials.Length > 0)
+            return crowdMaterials[index % crowdMaterials.Length];
+
+        if (generatedMaterials != null)
+            return generatedMaterials[index % generatedMaterials.Length];
+
+        return null;
+    }
+
+    void CreateLongStandCrowd(int side)
+    {
+        for (int row = 0; row < rows; row++)
+        {
+            for (int i = 0; i < longStandCount; i++)
+            {
+                float x = Mathf.Lerp(-53f, 53f,
+                    (float)i / (longStandCount - 1));
+
+                float z = side * (39f + row * 1.5f);
+                float y = 1.9f + row * 0.65f;
+
+                CreateSpectator(new Vector3(x, y, z));
+            }
+        }
+    }
+
+    void CreateEndStandCrowd(int side)
+    {
+        for (int row = 0; row < rows; row++)
+        {
+            for (int i = 0; i < endStandCount; i++)
+            {
+                float z = Mathf.Lerp(-35f, 35f,
+                    (float)i / (endStandCount - 1));
+
+                float x = side * (59f + row * 1.5f);
+                float y = 1.9f + row * 0.65f;
+
+                CreateSpectator(new Vector3(x, y, z));
+            }
+        }
+    }
+
+    void CreateSpectator(Vector3 position)
+    {
+        GameObject spectator = GameObject.CreatePrimitive(
+            PrimitiveType.Capsule
+        );
+
+        spectator.name = "3D Supporter";
+        spectator.transform.SetParent(transform, false);
+        spectator.transform.localPosition = position;
+        spectator.transform.localScale =
+            new Vector3(0.45f, 0.65f, 0.45f);
+
+        Collider col = spectator.GetComponent<Collider>();
+
+        if (col != null)
+            col.enabled = false;
+
+        Renderer renderer = spectator.GetComponent<Renderer>();
+        Material mat = GetCrowdMaterial(
+            Random.Range(0, 1000));
+
+        if (renderer != null && mat != null)
+            renderer.sharedMaterial = mat;
+    }
+}

@@ -1,0 +1,90 @@
+
+using UnityEngine;
+using UnityEngine.UI;
+
+public class MatchManager : MonoBehaviour
+{
+    public static MatchManager Instance;
+
+    [Header("Score")]
+    public int homeScore = 0;
+    public int awayScore = 0;
+
+    [Header("Match Timer")]
+    public float matchDuration = 180f;
+    private float timeRemaining;
+    private bool matchRunning = false;
+
+    [Header("UI")]
+    public Text scoreText;
+    public Text timerText;
+
+    void Awake()
+    {
+        Instance = this;
+        timeRemaining = matchDuration;
+        UpdateUI();
+    }
+
+    void Start()
+    {
+        matchRunning = true;
+    }
+
+    void Update()
+    {
+        if (!matchRunning) return;
+
+        timeRemaining -= Time.deltaTime;
+
+        if (timeRemaining <= 0f)
+        {
+            timeRemaining = 0f;
+            matchRunning = false;
+            EndMatch();
+        }
+
+        UpdateUI();
+    }
+
+    public void ScoreGoal(bool homeTeam)
+    {
+        if (!matchRunning) return;
+
+        if (homeTeam)
+            homeScore++;
+        else
+            awayScore++;
+
+        UpdateUI();
+        Debug.Log("BUT ! " + homeScore + " - " + awayScore);
+    }
+
+    void UpdateUI()
+    {
+        if (scoreText != null)
+            scoreText.text = homeScore + " - " + awayScore;
+
+        if (timerText != null)
+        {
+            int minutes = Mathf.FloorToInt(timeRemaining / 60);
+            int seconds = Mathf.FloorToInt(timeRemaining % 60);
+
+            timerText.text = string.Format(
+                "{0:00}:{1:00}", minutes, seconds
+            );
+        }
+    }
+
+    void EndMatch()
+    {
+        Debug.Log("FIN DU MATCH !");
+        
+        if (homeScore > awayScore)
+            Debug.Log("Victoire de l'équipe domicile !");
+        else if (awayScore > homeScore)
+            Debug.Log("Victoire de l'équipe visiteuse !");
+        else
+            Debug.Log("Match nul !");
+    }
+}

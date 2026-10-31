@@ -1,0 +1,74 @@
+
+using UnityEngine;
+
+public class StadiumBuilder : MonoBehaviour
+{
+    [Header("Stadium Settings")]
+    public int rows = 8;
+    public float rowHeight = 0.65f;
+    public float rowDepth = 1.5f;
+
+    [Header("Materials")]
+    public Material standMaterial;
+
+    void Start()
+    {
+        CreateLongStand(1);
+        CreateLongStand(-1);
+        CreateEndStand(1);
+        CreateEndStand(-1);
+    }
+
+    void CreateLongStand(int side)
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            CreateStandBlock(
+                "Long Stand",
+                new Vector3(
+                    0,
+                    1f + i * rowHeight,
+                    side * (39f + i * rowDepth)
+                ),
+                new Vector3(115f, 1.2f, rowDepth)
+            );
+        }
+    }
+
+    void CreateEndStand(int side)
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            CreateStandBlock(
+                "End Stand",
+                new Vector3(
+                    side * (59f + i * rowDepth),
+                    1f + i * rowHeight,
+                    0
+                ),
+                new Vector3(rowDepth, 1.2f, 78f)
+            );
+        }
+    }
+
+    void CreateStandBlock(
+        string blockName,
+        Vector3 position,
+        Vector3 scale)
+    {
+        GameObject block = GameObject.CreatePrimitive(
+            PrimitiveType.Cube
+        );
+
+        block.name = blockName;
+        block.transform.parent = transform;
+        block.transform.localPosition = position;
+        block.transform.localScale = scale;
+
+        if (standMaterial != null)
+        {
+            block.GetComponent<Renderer>().material =
+                standMaterial;
+        }
+    }
+}

@@ -1,0 +1,14 @@
+
+using UnityEngine;
+
+public class GameSettings : MonoBehaviour
+{
+    void Awake()
+    {
+        // Mode paysage
+        Screen.orientation = ScreenOrientation.LandscapeLeft;
+
+        // Plein écran
+        Screen.fullScreen = true;
+    }
+}
